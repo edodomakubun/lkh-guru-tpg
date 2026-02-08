@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS daily_logs;
+CREATE TABLE IF NOT EXISTS daily_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tanggal TEXT NOT NULL,
+  cp TEXT,
+  tp TEXT,
+  kls TEXT,
+  non_tatap TEXT,
+  dok TEXT,
+  vol TEXT,
+  ket TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
