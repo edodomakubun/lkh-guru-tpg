@@ -9,11 +9,14 @@ let currentLogs = [];
 async function loadLogs() {
     try {
         const response = await fetch('/api/logs');
-        if (!response.ok) throw new Error('Gagal mengambil data log');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server Error (${response.status}): ${errorText}`);
+        }
         currentLogs = await response.json();
         renderTable(currentLogs);
     } catch (error) {
-        console.error(error);
+        console.error("Load Logs Error:", error);
         alert('Gagal memuat data agenda: ' + error.message);
     }
 }
@@ -68,13 +71,17 @@ async function addLog(e) {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) throw new Error('Gagal menyimpan log');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: response.statusText }));
+            throw new Error(errorData.error || errorData.message || 'Unknown server error');
+        }
 
         // Reset form and reload
         document.getElementById('logForm').reset();
         loadLogs();
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error("Add Log Error:", error);
+        alert('Gagal menyimpan log: ' + error.message);
     }
 }
 
@@ -86,10 +93,14 @@ window.deleteLog = async function(id) {
         const response = await fetch(`/api/logs?id=${id}`, {
             method: 'DELETE'
         });
-        if (!response.ok) throw new Error('Gagal menghapus log');
+        if (!response.ok) {
+             const errorData = await response.json().catch(() => ({ error: response.statusText }));
+             throw new Error(errorData.error || 'Unknown server error');
+        }
         loadLogs();
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error("Delete Log Error:", error);
+        alert('Gagal menghapus log: ' + error.message);
     }
 };
 
